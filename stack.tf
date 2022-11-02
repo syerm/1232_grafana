@@ -1,14 +1,22 @@
 provider "azurerm" {
   features{}
 }
-data "azurerm_application_insights" "example" {
-  name="test-grafana-avaliability"
+
+resource "azurerm_application_insights" "example" {
+  name                = "grafana"
+  location            = "northeurope"
   resource_group_name = "dashboard06"
+  application_type    = "web"
+}
+
+data "azurerm_application_insights" "example" {
+  name=azurerm_application_insights.example.name
+  resource_group_name = azurerm_application_insights.example.resource_group_name
 }
 
 resource "azurerm_application_insights_web_test" "example" {
-  name                    = "tf-test-appinsights-webtest"
-  location                = "eu-north"
+  name                    = "grafana-webtest"
+  location                = azurerm_application_insights.example.location
   resource_group_name     = data.azurerm_application_insights.example.resource_group_name
   application_insights_id = data.azurerm_application_insights.example.id
   kind                    = "ping"
