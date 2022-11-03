@@ -34,15 +34,14 @@ resource "azurerm_application_insights_web_test" "web" {
 XML
 
 }
-resource "azurerm_monitor_action_group" "main" {
+
+data "azurerm_monitor_action_group" "slack" {
+  resource_group_name = "internal-aurora"
   name                = "omnia_aurora_notifications"
-  resource_group_name = "dashboard06"
-  short_name          = "slack"
-  email_receiver {
-    name                    = "stanislav"
-    email_address           = "syer@equinor.com"
-    use_common_alert_schema = true
-  }
+}
+
+output "action_group_id" {
+  value = data.azurerm_monitor_action_group.slack.id
 }
 
 resource "azurerm_monitor_metric_alert" "metrics" {
@@ -58,6 +57,6 @@ application_insights_web_test_location_availability_criteria {
 }
 
   action {
-    action_group_id = azurerm_monitor_action_group.main.id
+    action_group_id = data.azurerm_monitor_action_group.slack.id
   }
 }
