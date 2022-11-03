@@ -2,23 +2,23 @@ provider "azurerm" {
   features{}
 }
 
-resource "azurerm_application_insights" "example" {
+resource "azurerm_application_insights" "app_ins" {
   name                = "grafana"
   location            = "northeurope"
   resource_group_name = "dashboard06"
   application_type    = "web"
 }
 
-data "azurerm_application_insights" "example" {
-  name=azurerm_application_insights.example.name
-  resource_group_name = azurerm_application_insights.example.resource_group_name
+data "azurerm_application_insights" "app_ins" {
+  name=azurerm_application_insights.app_ins.name
+  resource_group_name = azurerm_application_insights.app_ins.resource_group_name
 }
 
-resource "azurerm_application_insights_web_test" "example" {
+resource "azurerm_application_insights_web_test" "web" {
   name                    = "grafana-webtest"
-  location                = azurerm_application_insights.example.location
-  resource_group_name     = data.azurerm_application_insights.example.resource_group_name
-  application_insights_id = data.azurerm_application_insights.example.id
+  location                = azurerm_application_insights.app_ins.location
+  resource_group_name     = data.azurerm_application_insights.app_ins.resource_group_name
+  application_insights_id = data.azurerm_application_insights.app_ins.id
   kind                    = "ping"
   frequency               = 300
   timeout                 = 60
@@ -36,8 +36,8 @@ XML
 }
 resource "azurerm_monitor_action_group" "main" {
   name                = "omnia_aurora_notifications"
-  resource_group_name = data.azurerm_application_insights.example.resource_group_name
-  short_name          = "omnia_alert"
+  resource_group_name = "dashboard06"
+  short_name          = "slack"
   email_receiver {
     name                    = "stanislav"
     email_address           = "syer@equinor.com"
@@ -45,15 +45,15 @@ resource "azurerm_monitor_action_group" "main" {
   }
 }
 
-resource "azurerm_monitor_metric_alert" "example" {
-  name                = "example-metricalert"
-  resource_group_name = data.azurerm_application_insights.example.resource_group_name
-  scopes = [azurerm_application_insights_web_test.example.id,data.azurerm_application_insights.example.id]
+resource "azurerm_monitor_metric_alert" "metrics" {
+  name                = "metricalert"
+  resource_group_name = data.azurerm_application_insights.app_ins.resource_group_name
+  scopes = [azurerm_application_insights_web_test.web.id,data.azurerm_application_insights.app_ins.id]
   description         = "PING test alert"
 
 application_insights_web_test_location_availability_criteria {
-  web_test_id = azurerm_application_insights_web_test.example.id
-  component_id = data.azurerm_application_insights.example.id
+  web_test_id = azurerm_application_insights_web_test.web.id
+  component_id = data.azurerm_application_insights.app_ins.id
   failed_location_count = 2
 }
 
