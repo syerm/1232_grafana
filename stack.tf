@@ -45,10 +45,10 @@ output "action_group_id" {
 }
 
 resource "azurerm_monitor_metric_alert" "metrics" {
-  name                = "metricalert"
+  name                = "dashboard-alert"
   resource_group_name = data.azurerm_application_insights.app_ins.resource_group_name
   scopes = [azurerm_application_insights_web_test.web.id,data.azurerm_application_insights.app_ins.id]
-  description         = "PING test alert"
+  description         = "Dashboard06 is down"
 
 application_insights_web_test_location_availability_criteria {
   web_test_id = azurerm_application_insights_web_test.web.id
